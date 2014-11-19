@@ -31,6 +31,8 @@
 
 - (BOOL)isValidationRuleSatisfied:(id)instance
 {
+    if ([instance isKindOfClass:[UITextField class]] && [self.otherInstance isKindOfClass:[UITextField class]])
+        return [((UITextField *)instance).text isEqualToString:((UITextField *)self.otherInstance).text];
     return [instance isEqual:self.otherInstance];
 }
 

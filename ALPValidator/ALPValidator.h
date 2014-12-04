@@ -76,7 +76,7 @@ typedef NS_ENUM(NSUInteger, ALPValidatorState) {
  *
  *  @param ALPValidatorState state of the validation
  */
-typedef void (^ALPValidatorStateChangeHandler)(ALPValidatorState);
+typedef void (^ALPValidatorStateChangeHandler)(ALPValidatorState, id);
 
 /**
  *  Block added to a custom rule
@@ -257,12 +257,7 @@ extern NSString * const ALPValidatorRegularExpressionPatternContainsNumber;
  *
  *  @param instance instance to validate (typically a user input)
  */
-- (void)validate:(id)instance;
-
-/**
- *  Alias for validate:
- */
-- (void)alpValidate:(id)instance;
+- (void)validate:(id)instance sender:(id)sender;
 
 /**
  *  Validates an instance and the state property, additional params can be passed in a dicitonary
@@ -270,12 +265,7 @@ extern NSString * const ALPValidatorRegularExpressionPatternContainsNumber;
  *  @param instance   instance to validate
  *  @param parameters any additional parameters required for the validation
  */
-- (void)validate:(id)instance parameters:(NSDictionary *)parameters;
-
-/**
- *  Alias for validate:parameters:
- */
-- (void)alpValidate:(id)instance parameters:(NSDictionary *)parameters;
+- (void)validate:(id)instance parameters:(NSDictionary *)parameters sender:(id)sender;
 
 /**
  *  Return YES if last instance validated was deemed valid based on the added rules

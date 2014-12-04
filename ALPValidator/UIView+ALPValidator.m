@@ -3,19 +3,19 @@
 //  ALPValidator
 //
 //  Created by Michael Gaylord on 2014/08/28.
-//  Copyright (c) 2014 Adam Waite. All rights reserved.
+//  Copyright (c) 2014 Alpaca Labs. All rights reserved.
 //
 
 #import "UIView+ALPValidator.h"
 #import "ALPValidator.h"
 #import <objc/runtime.h>
 
-static char ALPValidators;
+static char ALPValidatorUIViewValidators;
 
-typedef NS_ENUM(NSUInteger, ALPValidatorInputType) {
-    ALPValidatorInputTypeUnsupported,
-    ALPValidatorInputTypeUITextField,
-    ALPValidatorInputTypeUITextView
+typedef NS_ENUM(NSUInteger, ALPValidatorUIViewValidatorsType) {
+    ALPValidatorUIViewValidatorsTypeUnsupported,
+    ALPValidatorUIViewValidatorsTypeUITextField,
+    ALPValidatorUIViewValidatorsTypeUITextView
 };
 
 @implementation UIView (ALPValidator)
@@ -24,22 +24,22 @@ typedef NS_ENUM(NSUInteger, ALPValidatorInputType) {
 
 - (NSMutableArray *)alp_validators
 {
-    return objc_getAssociatedObject(self, &ALPValidators);
+    return objc_getAssociatedObject(self, &ALPValidatorUIViewValidators);
 }
 
 #pragma mark Supported Input Views
 
-- (ALPValidatorInputType)alp_validatorType
+- (ALPValidatorUIViewValidatorsType)alp_validatorType
 {
     if ([self isKindOfClass:[UITextField class]]) {
-        return ALPValidatorInputTypeUITextField;
+        return ALPValidatorUIViewValidatorsTypeUITextField;
     }
     
     if ([self isKindOfClass:[UITextView class]]) {
-        return ALPValidatorInputTypeUITextView;
+        return ALPValidatorUIViewValidatorsTypeUITextView;
     }
     
-    return ALPValidatorInputTypeUnsupported;
+    return ALPValidatorUIViewValidatorsTypeUnsupported;
 }
 
 #pragma mark Attach/Remove
@@ -49,19 +49,19 @@ typedef NS_ENUM(NSUInteger, ALPValidatorInputType) {
     NSParameterAssert(validator);
     
     switch ([self alp_validatorType]) {
-        case ALPValidatorInputTypeUITextField:
+        case ALPValidatorUIViewValidatorsTypeUITextField:
             [self alp_attachTextFieldValidator];
             break;
-        case ALPValidatorInputTypeUITextView:
+        case ALPValidatorUIViewValidatorsTypeUITextView:
             [self alp_attachTextViewValidator];
             break;
-        case ALPValidatorInputTypeUnsupported:
+        case ALPValidatorUIViewValidatorsTypeUnsupported:
             NSLog(@"Tried to add ALPValidator to unsupported control type of class %@. %s.", [self class], __PRETTY_FUNCTION__);
-            NSAssert(NO, nil);
+            return;
     }
     
     if (![self alp_validators]) {
-        objc_setAssociatedObject(self, &ALPValidators, [NSMutableArray array], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(self, &ALPValidatorUIViewValidators, [NSMutableArray array], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     
     [[self alp_validators] addObject:validator];
@@ -84,7 +84,7 @@ typedef NS_ENUM(NSUInteger, ALPValidatorInputType) {
 - (void)alp_validateTextFieldForChange:(UITextField *)textField
 {
     [[self alp_validators] enumerateObjectsUsingBlock:^(ALPValidator *validator, NSUInteger idx, BOOL *stop) {
-        [validator validate:textField.text];
+        [validator validate:textField.text sender:textField];
     }];
 }
 
@@ -99,7 +99,7 @@ typedef NS_ENUM(NSUInteger, ALPValidatorInputType) {
 {
     [[self alp_validators] enumerateObjectsUsingBlock:^(ALPValidator *validator, NSUInteger idx, BOOL *stop) {
         UITextView *textView = notification.object;
-        [validator validate:textView.text];
+        [validator validate:textView.text sender:textView];
     }];
 }
 
